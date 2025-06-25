@@ -1,4 +1,29 @@
-test/
-test_compressed/
+
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*.pyo
+*.pyd
+
+# PyInstaller
+*.spec
+build/
+dist/
+*.exe
+
+# Logs and temp
+*.log
+*.tmp
+*.bak
+
+# System
+.DS_Store
+Thumbs.db
+
+# IDE and editor configs
+.vscode/
+.idea/
+
+# User files
+test/
+*_compressed/

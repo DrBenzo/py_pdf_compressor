@@ -1,5 +1,8 @@
 import os
 import fitz  # PyMuPDF
+import platform
+import subprocess
+
 
 def find_pdfs(directory):
     """
@@ -29,3 +32,14 @@ def is_scanned_pdf(pdf_path, image_threshold=0.5):
 
     ratio = image_pages / len(doc)
     return ratio >= image_threshold
+
+def open_folder(path):
+    path = os.path.abspath(path)
+    system = platform.system()
+
+    if system == "Windows":
+        os.startfile(path)
+    elif system == "Darwin":  # macOS
+        subprocess.run(["open", path])
+    else:  # Linux и другие
+        subprocess.run(["xdg-open", path])

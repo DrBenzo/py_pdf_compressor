@@ -1,7 +1,7 @@
 import os
 import shutil
 import tempfile
-from pdf_utils import find_pdfs, is_scanned_pdf
+from pdf_utils import find_pdfs, is_scanned_pdf, open_folder
 from compress import compress_text_pdf, compress_scanned_pdf
 from rich.console import Console
 from rich.panel import Panel
@@ -10,6 +10,7 @@ from tkinter import Tk, filedialog
 from pathlib import Path
 import sys
 from rich.progress import Progress
+
 
 console = Console()
 
@@ -59,10 +60,10 @@ def run_pipeline(source_dir, scale_percent):
     total_compressed_size = 0
 
     with tempfile.TemporaryDirectory() as temp_dir, Progress() as progress:
-        task = progress.add_task("[cyan]Обработка PDF файлов...", total=len(pdf_files))
+        task = progress.add_task("[cyan] Обработка PDF файлов...", total=len(pdf_files))
 
         for pdf_path in pdf_files:
-            console.print(f"[cyan]Обработка файла: {pdf_path}[/cyan] {pdf_path}")
+            console.print(f"[cyan] Обработка файла: {pdf_path}[/cyan] {pdf_path}")
             relative_path = Path(pdf_path).relative_to(source_dir)
             output_path = Path(dest_dir) / relative_path
             output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -100,6 +101,9 @@ def main():
 
     scale_percent = ask_quality()
     run_pipeline(source_dir, scale_percent)
+    # Путь к папке с результатами
+    output_dir = f"{source_dir}_compressed"
+    open_folder(output_dir)
 
 if __name__ == "__main__":
     main()
