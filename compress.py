@@ -47,7 +47,7 @@ def extract_images_from_pdf(pdf_path, output_folder):
 
     return image_paths
 
-def compress_images(image_paths, quality=30, scale_percent=50):
+def compress_images(image_paths, quality=50, scale_percent=70):
     """
     Сжимает изображения JPEG с указанным качеством.
     Возвращает список путей к сжатым изображениям.
@@ -108,7 +108,7 @@ def create_pdf_from_images(image_paths, output_pdf_path):
 
     pdf.output(output_pdf_path)
 
-def compress_scanned_pdf(input_pdf_path, output_pdf_path, temp_folder):
+def compress_scanned_pdf(input_pdf_path, output_pdf_path, temp_folder, scale_percent=70):
     """
     Полный цикл сжатия сканированного PDF:
     1) Извлечение изображений
@@ -116,5 +116,5 @@ def compress_scanned_pdf(input_pdf_path, output_pdf_path, temp_folder):
     3) Сборка нового PDF
     """
     extracted_images = extract_images_from_pdf(input_pdf_path, temp_folder)
-    compressed_images = compress_images(extracted_images, quality=50)
+    compressed_images = compress_images(extracted_images, scale_percent=scale_percent)
     create_pdf_from_images(compressed_images, output_pdf_path)
