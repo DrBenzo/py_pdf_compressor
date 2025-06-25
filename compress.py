@@ -47,7 +47,7 @@ def extract_images_from_pdf(pdf_path, output_folder):
 
     return image_paths
 
-def compress_images(image_paths, quality=50):
+def compress_images(image_paths, quality=10):
     """
     Сжимает изображения JPEG с указанным качеством.
     Возвращает список путей к сжатым изображениям.
