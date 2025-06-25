@@ -12,7 +12,7 @@ def compress_text_pdf(input_pdf_path, output_pdf_path):
         'gswin64c',
         '-sDEVICE=pdfwrite',
         '-dCompatibilityLevel=1.4',
-        '-dPDFSETTINGS=/ebook',
+        '-dPDFSETTINGS=/screen',
         '-dNOPAUSE',
         '-dQUIET',
         '-dBATCH',
@@ -47,7 +47,7 @@ def extract_images_from_pdf(pdf_path, output_folder):
 
     return image_paths
 
-def compress_images(image_paths, quality=10):
+def compress_images(image_paths, quality=30, scale_percent=50):
     """
     Сжимает изображения JPEG с указанным качеством.
     Возвращает список путей к сжатым изображениям.
@@ -56,23 +56,57 @@ def compress_images(image_paths, quality=10):
 
     for img_path in image_paths:
         image = Image.open(img_path)
+        width, height = image.size
+
+        # Вычисляем новые размеры
+        new_width = int(width * scale_percent / 100)
+        new_height = int(height * scale_percent / 100)
+
+        # Изменяем размер
+        image = image.resize((new_width, new_height), Image.LANCZOS)
+
         compressed_path = img_path.replace(".jpg", "_compressed.jpg")
-        image.save(compressed_path, "JPEG", quality=quality)
+        image.save(compressed_path, "JPEG", quality=quality, optimize=True)
         compressed_paths.append(compressed_path)
 
     return compressed_paths
 
 def create_pdf_from_images(image_paths, output_pdf_path):
     """
-    Создаёт новый PDF из списка изображений.
+    Создаёт PDF из изображений, автоматически выбирая ориентацию A4 и сохраняя пропорции.
     """
-    pdf = FPDF()
+    pdf = FPDF(unit="mm")
+    dpi = 96  # Предполагаемое DPI изображений
 
     for img_path in image_paths:
-        pdf.add_page()
-        pdf.image(img_path, x=0, y=0, w=210, h=297)  # формат A4
+        image = Image.open(img_path)
+        img_width_px, img_height_px = image.size
 
-    pdf.output(output_pdf_path, "F")
+        img_width_mm = img_width_px * 25.4 / dpi
+        img_height_mm = img_height_px * 25.4 / dpi
+
+        # Определяем ориентацию страницы
+        if img_width_mm > img_height_mm:
+            # Альбомная ориентация
+            page_width, page_height = 297, 210
+            pdf.add_page(orientation='L')  # Landscape
+        else:
+            # Книжная ориентация
+            page_width, page_height = 210, 297
+            pdf.add_page(orientation='P')  # Portrait
+
+        # Масштабирование с сохранением пропорций
+        scale = min(page_width / img_width_mm, page_height / img_height_mm)
+        new_width = img_width_mm * scale
+        new_height = img_height_mm * scale
+
+        # Центрирование
+        x = (page_width - new_width) / 2
+        y = (page_height - new_height) / 2
+
+        pdf.image(img_path, x=x, y=y, w=new_width, h=new_height)
+
+    pdf.output(output_pdf_path)
 
 def compress_scanned_pdf(input_pdf_path, output_pdf_path, temp_folder):
     """
